@@ -6,6 +6,6 @@ docker run --rm -it -d \
   -e DISPLAY=$DISPLAY \
   -e QT_XKB_CONFIG_ROOT=/user/share/X11/xkb \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v teradici-client-config:/home/developer/.config \
+  -v teradici-client-config:/home/myuser/.config \
   --network=host \
   `docker build -q -f ${SCRIPT_PATH}/Dockerfile ${SCRIPT_PATH}`

@@ -1,25 +1,38 @@
-FROM ubuntu:16.04
+# FROM: https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/creating_a_docker_container/
+FROM ubuntu:18.04
 
-RUN apt-key adv --keyserver pool.sks-keyservers.net --recv-key 67D7ADA8
+# Use the following two lines to install the Teradici repository package
 RUN apt-get update && apt-get install -y wget
-RUN wget -O /etc/apt/sources.list.d/pcoip.list https://downloads.teradici.com/ubuntu/pcoip-dev.repo
-RUN apt-get install -y apt-transport-https
-RUN apt-get update
+RUN wget -O teradici-repo-latest.deb https://downloads.teradici.com/ubuntu/teradici-repo-bionic-latest.deb
+RUN apt install ./teradici-repo-latest.deb
+
+# Uncomment the following line to install Beta client builds from the internal repository
+RUN echo "deb [arch=amd64] https://downloads.teradici.com/ubuntu bionic-beta non-free" > /etc/apt/sources.list.d/pcoip.list
+
+# Install apt-transport-https to support the client installation
+RUN apt-get update && apt-get install -y apt-transport-https
+
+# Install the client application
 RUN apt-get install -y pcoip-client
 
+
+# Setup a functional user within the docker container with the same permissions as your local user.
 # Replace 1000 with your user / group id
+# Replace myuser with your local username
 RUN export uid=1000 gid=1000 && \
-  mkdir -p /etc/sudoers.d/ && \
-  mkdir -p /home/developer/.local/share && \
-  mkdir -p /home/developer/.config/Teradici && \
-  echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
-  echo "developer:x:${uid}:" >> /etc/group && \
-  echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
-  chmod 0440 /etc/sudoers.d/developer && \
-  chown ${uid}:${gid} -R /home/developer
+    mkdir -p /etc/sudoers.d/ && \
+    mkdir -p /home/myuser && \
+    echo "myuser:x:${uid}:${gid}:Myuser,,,:/home/myuser:/bin/bash" >> /etc/passwd && \
+    echo "myuser:x:${uid}:" >> /etc/group && \
+    echo "myuser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/myuser && \
+    chmod 0440 /etc/sudoers.d/myuser && \
+    chown ${uid}:${gid} -R /home/myuser
 
-USER developer
+# Set some environment variables for the current user
+USER myuser
+ENV HOME /home/myuser
 
-ENV HOME /home/developer
+# Set the path for QT to find the keyboard context
+ENV QT_XKB_CONFIG_ROOT /usr/share/X11/xkb
 
-CMD pcoip-client
+ENTRYPOINT exec pcoip-client
