@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y apt-transport-https
 # Install the client application
 RUN apt-get install -y pcoip-client
 
+# per: http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration
+RUN apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils
 
 # Setup a functional user within the docker container with the same permissions as your local user.
 # Replace 1000 with your user / group id
