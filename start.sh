@@ -8,4 +8,4 @@ docker run --rm -it -d \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v teradici-client-config:/home/myuser/.config \
   --network=host \
-  `docker build -q -f ${SCRIPT_PATH}/Dockerfile ${SCRIPT_PATH}`
+  `docker build -f ${SCRIPT_PATH}/Dockerfile ${SCRIPT_PATH}`
