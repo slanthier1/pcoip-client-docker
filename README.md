@@ -7,5 +7,8 @@ This lets you run Teradici's PCoIP Client for Linux in a Docker container; this 
 
 YMMV.
 
-###
-Thanks @jlucas for the logo.
+### Setup
+* Don't forget to update the Dockerfile with your own uid/gid (so bad).
+
+### Thanks
+* @jlucas for the logo
