@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_PATH=$(dirname "$(realpath $0)")
-
+# Build
 docker build -t pcoip_appliance .
 
+# Run
 docker run --rm -it -d \
     -e DISPLAY=$DISPLAY \
     -e QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb \
