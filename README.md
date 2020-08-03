@@ -11,4 +11,5 @@ YMMV.
 * Don't forget to update the Dockerfile with your own uid/gid (so bad).
 
 ### Thanks
+* Teradici's setup instructions [here](https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/docker_containers/)
 * @jlucas for the logo
