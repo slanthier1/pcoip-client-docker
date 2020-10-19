@@ -8,7 +8,7 @@ docker run --rm -it -d \
     -e DISPLAY=$DISPLAY \
     -e QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -v teradici-client-config:/home/myuser/.config \
+    -v `pwd`/teradici-client-config/:/home/`whoami`/.config/Teradici/ \
     --network=host \
     --device=/dev/dri/:/dev/dri/ \
     pcoip_appliance
