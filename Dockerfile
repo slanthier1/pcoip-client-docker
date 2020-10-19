@@ -1,4 +1,4 @@
-# FROM: https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/creating_a_docker_container/
+# Based on: https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/creating_a_docker_container/
 FROM ubuntu:18.04
 
 # Replace jesse with your local username
