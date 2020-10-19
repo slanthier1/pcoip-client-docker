@@ -11,4 +11,5 @@ docker run --rm -it -d \
     -v `pwd`/teradici-client-config/:/home/`whoami`/.config/Teradici/ \
     --network=host \
     --device=/dev/dri/:/dev/dri/ \
+    --device=/dev/bus/usb:/dev/bus/usb \
     pcoip_appliance
