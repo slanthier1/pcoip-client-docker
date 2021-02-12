@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Build
-docker build -t pcoip_appliance .
+sudo docker build -t pcoip_appliance .
 
 # Run
-docker run --rm -it -d \
+sudo docker run --rm -it -d \
     -e DISPLAY=$DISPLAY \
     -e QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
