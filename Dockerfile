@@ -1,6 +1,12 @@
 # Based on: https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/creating_a_docker_container/
 FROM ubuntu:18.04
 
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
 # Replace jesse with your local username
 # Replace 1000 with your local user's uid
 # Replace 1000 with your local user's gid
@@ -22,8 +28,11 @@ RUN apt-get update && apt-get install -y apt-transport-https
 # Install the client application
 RUN apt-get install -y pcoip-client
 
-# per: http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration
-RUN apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils
+# Setup the GUI using the driver downloaded in the start script
+# Thanks https://stackoverflow.com/a/44187181 !!!
+RUN apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils module-init-tools kmod
+COPY NVIDIA-DRIVER.run NVIDIA-DRIVER.run
+RUN ./NVIDIA-DRIVER.run -a -N --ui=none --no-kernel-module
 
 # Setup a functional user within the docker container with the same permissions as your local user.
 RUN groupadd -g $UID $USERNAME
