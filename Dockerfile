@@ -1,49 +1,62 @@
 # Based on: https://www.teradici.com/web-help/pcoip_client/linux/20.07/reference/creating_a_docker_container/
-FROM ubuntu:18.04
+# Conditional stage Logic based on: https://stackoverflow.com/a/60820156
+# This is so annoying: https://stackoverflow.com/questions/64067541/do-i-need-nvidia-container-runtime-and-why
 
-LABEL com.nvidia.volumes.needed="nvidia_driver"
+ARG NVIDIA_ENABLED=0
 
+# First, define a 'base' image that's the same for both modes
+FROM ubuntu:18.04 as base
+
+# Args
+ARG HOST_USERNAME
+ARG HOST_UID
+ARG HOST_GID
+
+# ENV
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
-# Replace jesse with your local username
-# Replace 1000 with your local user's uid
-# Replace 1000 with your local user's gid
-ARG USERNAME=jesse
-ARG UID=1000
-ARG GID=1000
+# Setup a functional user with the same permissions as your local user.
+# https://jtreminio.com/blog/running-docker-containers-as-current-host-user/
+RUN groupadd -g ${HOST_GID} ${HOST_USERNAME}
+RUN useradd -l -u ${HOST_UID} -g ${HOST_GID} ${HOST_USERNAME}
+RUN install -d -m 0755 -o ${HOST_USERNAME} -g ${HOST_GID} /home/${HOST_USERNAME}
 
-# Use the following two lines to install the Teradici repository package
-RUN apt-get update && apt-get install -y wget
+# Install the Terradici Client per their instructions
+# Enable Beta client builds with the echo "deb [arch=amd64]...." command
+RUN apt-get update && apt-get install -y wget apt-transport-https apt-utils
 RUN wget -O teradici-repo-latest.deb https://downloads.teradici.com/ubuntu/teradici-repo-bionic-latest.deb
 RUN apt install ./teradici-repo-latest.deb
-
-# Uncomment the following line to install Beta client builds from the internal repository
 RUN echo "deb [arch=amd64] https://downloads.teradici.com/ubuntu bionic-beta non-free" > /etc/apt/sources.list.d/pcoip.list
+RUN apt-get update && apt-get install --no-install-recommends -y pcoip-client
 
-# Install apt-transport-https to support the client installation
-RUN apt-get update && apt-get install -y apt-transport-https
+# Define a variant for non-nvidia accelerated setups; no different from base!
+FROM base AS branch-version-0
+RUN apt-get install -y mesa-utils libgl1-mesa-glx libnvidia-gl-470
 
-# Install the client application
-RUN apt-get install -y pcoip-client
-
-# Setup the GUI using the driver downloaded in the start script
+# Next, Define a variant for nvidia-based setups
 # Thanks https://stackoverflow.com/a/44187181 !!!
-RUN apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils module-init-tools kmod
-COPY NVIDIA-DRIVER.run NVIDIA-DRIVER.run
-RUN ./NVIDIA-DRIVER.run -a -N --ui=none --no-kernel-module
+FROM base AS branch-version-1
+ARG NVIDIA_DRIVER_VERSION
 
-# Setup a functional user within the docker container with the same permissions as your local user.
-RUN groupadd -g $UID $USERNAME
-RUN useradd -ms /bin/bash -u $UID -g $GID $USERNAME
-RUN usermod -a -G video $USERNAME
+# Because both paths get executed (grumble grumble) we need to mkae sure this all no-ops
+RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils module-init-tools kmod ; fi
+RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then wget -cO NVIDIA-DRIVER.run http://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run ; fi
+RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then chmod a+x NVIDIA-DRIVER.run ; fi
+RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then ./NVIDIA-DRIVER.run -a -N --ui=none --no-kernel-module ; fi
 
-# Set some environment variables for the current user
-USER $USERNAME
-ENV HOME /home/$USERNAME
+# Create 'final' using whichever branch was specified
+FROM branch-version-${NVIDIA_ENABLED} AS final
+
+ARG HOST_USERNAME
+
+# Become the container's copy of our host's user
+USER ${HOST_USERNAME}
+ENV HOME /home/${HOST_USERNAME}
 
 # Set the path for QT to find the keyboard context
 ENV QT_XKB_CONFIG_ROOT /usr/share/X11/xkb
 
+# Enter!
 ENTRYPOINT exec pcoip-client

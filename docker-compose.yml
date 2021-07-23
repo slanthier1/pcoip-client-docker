@@ -1,0 +1,25 @@
+version: '2.3' 
+services:
+    pcoip_appliance:
+        image: pcoip-docker-client:latest
+        privileged: true
+        build:
+            context: .
+            args: 
+                HOST_USERNAME: ${HOST_USERNAME}
+                HOST_UID: ${HOST_UID}
+                HOST_GID: ${HOST_GID}
+                NVIDIA_ENABLED: ${NVIDIA_ENABLED:-0}
+                NVIDIA_DRIVER_VERSION: ${NVIDIA_DRIVER_VERSION}
+        environment:
+            - DISPLAY=${DISPLAY}
+            - QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./teradici-client-config/:${HOME}/.config/Teradici/
+            - ./logs:/tmp/Teradici/${HOST_USERNAME:-0}/PCoIPClient/logs
+        network_mode: host
+        devices:
+            - /dev/dri
+            - /dev/bus/usb
+            - /dev/video0
