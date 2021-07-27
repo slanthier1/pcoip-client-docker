@@ -38,11 +38,16 @@ RUN apt-get install -y mesa-utils libgl1-mesa-glx libnvidia-gl-470
 FROM base AS branch-version-1
 ARG NVIDIA_DRIVER_VERSION
 
-# Because both paths get executed (grumble grumble) we need to mkae sure this all no-ops
-RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils module-init-tools kmod ; fi
-RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then wget -cO NVIDIA-DRIVER.run http://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run ; fi
-RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then chmod a+x NVIDIA-DRIVER.run ; fi
-RUN if [ -n "${NVIDIA_DRIVER_VERSION}" ] ; then ./NVIDIA-DRIVER.run -a -N --ui=none --no-kernel-module ; fi
+# My 418.181.07 driver from Debian 10 apt comes from an Nvidia "tesla"
+# download URL.  Your driver might come from an "XFree86" URL.  So, we
+# try both.
+RUN if [ "${NVIDIA_DRIVER_VERSION}" ]; then \
+    apt-get install -y libgl1-mesa-glx libgl1-mesa-dri mesa-utils module-init-tools; \
+    wget -cO NVIDIA-DRIVER.run http://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run || \
+    wget -cO NVIDIA-DRIVER.run http://us.download.nvidia.com/tesla/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run; \
+    chmod a+x NVIDIA-DRIVER.run; \
+    ./NVIDIA-DRIVER.run -a -N --ui=none --no-kernel-module; \
+	fi
 
 # Create 'final' using whichever branch was specified
 FROM branch-version-${NVIDIA_ENABLED} AS final
