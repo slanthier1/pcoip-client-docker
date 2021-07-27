@@ -1,11 +1,11 @@
-version: '2.3' 
+version: '2.3'
 services:
     pcoip_appliance:
         image: pcoip-docker-client:latest
         privileged: true
         build:
             context: .
-            args: 
+            args:
                 HOST_USERNAME: ${HOST_USERNAME}
                 HOST_UID: ${HOST_UID}
                 HOST_GID: ${HOST_GID}
@@ -23,3 +23,4 @@ services:
             - /dev/dri
             - /dev/bus/usb
             - /dev/video0
+
