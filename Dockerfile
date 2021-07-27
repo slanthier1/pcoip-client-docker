@@ -58,6 +58,10 @@ ARG HOST_USERNAME
 USER ${HOST_USERNAME}
 ENV HOME /home/${HOST_USERNAME}
 
+# pcoip-client writes pulseaudio data under here
+RUN mkdir /home/${HOST_USERNAME}/.config
+RUN chown ${HOST_USERNAME}:${HOST_GID} /home/${HOST_USERNAME}/.config
+
 # Set the path for QT to find the keyboard context
 ENV QT_XKB_CONFIG_ROOT /usr/share/X11/xkb
 
