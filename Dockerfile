@@ -66,4 +66,5 @@ RUN chown ${HOST_USERNAME}:${HOST_GID} /home/${HOST_USERNAME}/.config
 ENV QT_XKB_CONFIG_ROOT /usr/share/X11/xkb
 
 # Enter!
-ENTRYPOINT exec pcoip-client
+ENTRYPOINT pcoip-client
+
