@@ -25,7 +25,7 @@ RUN install -d -m 0755 -o ${HOST_USERNAME} -g ${HOST_GID} /home/${HOST_USERNAME}
 # Enable Beta client builds with the echo "deb [arch=amd64]...." command
 RUN apt-get update && apt-get install -y wget apt-transport-https apt-utils
 RUN wget -O teradici-repo-latest.deb https://downloads.teradici.com/ubuntu/teradici-repo-bionic-latest.deb
-RUN apt install ./teradici-repo-latest.deb
+RUN apt-get install ./teradici-repo-latest.deb
 RUN echo "deb [arch=amd64] https://downloads.teradici.com/ubuntu bionic-beta non-free" > /etc/apt/sources.list.d/pcoip.list
 RUN apt-get update && apt-get install --no-install-recommends -y pcoip-client
 
