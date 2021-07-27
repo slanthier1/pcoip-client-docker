@@ -11,11 +11,9 @@ FROM ubuntu:18.04 as base
 ARG HOST_USERNAME
 ARG HOST_UID
 ARG HOST_GID
-
-# ENV
-ENV DEBIAN_FRONTEND noninteractive
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
+ARG DEBIAN_FRONTEND=noninteractive
+ARG LC_ALL=C.UTF-8
+ARG LANG=C.UTF-8
 
 # Setup a functional user with the same permissions as your local user.
 # https://jtreminio.com/blog/running-docker-containers-as-current-host-user/
